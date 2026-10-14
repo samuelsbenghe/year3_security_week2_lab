@@ -3,7 +3,7 @@ import socket
 import os
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms
 from cryptography.hazmat.decrepit.ciphers.modes import CFB
 import pickle
 
@@ -20,7 +20,7 @@ cipher = Cipher(algorithms.AES(aes_key), CFB(iv))
 encryptor = cipher.encryptor()
 encrypted_message = encryptor.update(message) + encryptor.finalize()
 # 3. Encrypt AES key with RSA (recipient's public key)
-encrypted_key = public_key.encrypt(
+encrypted_key = public_key.encrypt(  # type: ignore
     aes_key,
     padding.OAEP(
         mgf=padding.MGF1(algorithm=hashes.SHA256()),

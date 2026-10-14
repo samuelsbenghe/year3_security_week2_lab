@@ -2,7 +2,8 @@ import socket
 import pickle
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms
+from cryptography.hazmat.decrepit.ciphers.modes import CFB
 
 # Load private key
 with open("private_key.pem", "rb") as f:
@@ -26,7 +27,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 # Unpack payload
 encrypted_key, iv, encrypted_message = pickle.loads(data)
 # 1. Decrypt AES key with RSA private key
-aes_key = private_key.decrypt(
+aes_key = private_key.decrypt(  # type: ignore
     encrypted_key,
     padding.OAEP(
         mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -35,7 +36,7 @@ aes_key = private_key.decrypt(
     ),
 )
 # 2. Decrypt message with AES
-cipher = Cipher(algorithms.AES(aes_key), modes.CFB(iv))
+cipher = Cipher(algorithms.AES(aes_key), CFB(iv))  # type: ignore
 decryptor = cipher.decryptor()
 message = decryptor.update(encrypted_message) + decryptor.finalize()
 print(" Decrypted message:", message.decode())
